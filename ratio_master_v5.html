@@ -1,0 +1,938 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ratio & Proportion Master v5</title>
+    <style>
+        /* Sleek Grey/Black Dark Theme */
+        :root {
+            --bg: #09090b;          
+            --surface: #18181b;     
+            --surface-hover: #27272a; 
+            --primary: #f59e0b;     /* Amber/Gold accent for Ratio/Proportion */
+            --primary-hover: #d97706;
+            --success: #10b981;     
+            --danger: #f43f5e;      
+            --warning: #f59e0b;     
+            --text: #fafafa;        
+            --text-muted: #a1a1aa;  
+            --border: #27272a;      
+        }
+        
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        
+        body { 
+            background-color: var(--bg); 
+            color: var(--text); 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            min-height: 100vh; 
+            padding: 1rem; 
+        }
+        
+        .container { 
+            background: var(--surface); 
+            border-radius: 12px; 
+            padding: 2.5rem; 
+            width: 100%; 
+            max-width: 900px; 
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7); 
+            border: 1px solid var(--border); 
+        }
+        
+        h1 { 
+            text-align: center; 
+            margin-bottom: 0.5rem; 
+            color: var(--text); 
+            font-size: 2.2rem; 
+            letter-spacing: -0.5px;
+        }
+        
+        p.subtitle { 
+            text-align: center; 
+            color: var(--text-muted); 
+            margin-bottom: 2.5rem; 
+            font-size: 1rem; 
+        }
+        
+        #start-screen, #quiz-screen, #result-screen { display: none; }
+        #start-screen.active, #quiz-screen.active, #result-screen.active { display: block; animation: fadeIn 0.3s ease-out; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        button { 
+            background: var(--primary); 
+            color: white; 
+            border: none; 
+            padding: 0.875rem 1.5rem; 
+            border-radius: 8px; 
+            font-size: 1.05rem; 
+            cursor: pointer; 
+            transition: all 0.2s ease; 
+            font-weight: 600; 
+            box-shadow: 0 4px 6px -1px rgba(245, 158, 11, 0.2);
+        }
+        
+        button:hover:not(:disabled) { 
+            background: var(--primary-hover); 
+            transform: translateY(-1px);
+            box-shadow: 0 6px 8px -1px rgba(245, 158, 11, 0.3);
+        }
+        
+        button:disabled { 
+            background: var(--surface-hover); 
+            color: var(--text-muted);
+            cursor: not-allowed; 
+            box-shadow: none;
+            transform: none;
+        }
+        
+        .start-btn { display: block; width: 100%; padding: 1.25rem; font-size: 1.25rem; margin-top: 1.5rem; letter-spacing: 1px; text-transform: uppercase;}
+
+        .settings { display: grid; grid-template-columns: 1fr; gap: 1.25rem; margin-bottom: 2.5rem; }
+        .setting-group { display: flex; flex-direction: column; gap: 0.5rem; }
+        .setting-group label { color: var(--text-muted); font-size: 0.9rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;}
+        
+        select { 
+            background: var(--bg); 
+            border: 1px solid var(--border); 
+            color: var(--text); 
+            padding: 1rem; 
+            border-radius: 8px; 
+            outline: none; 
+            font-size: 1rem; 
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23a1a1aa%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
+            background-repeat: no-repeat;
+            background-position: right 1rem top 50%;
+            background-size: 0.65rem auto;
+            cursor: pointer;
+        }
+        select:focus { border-color: var(--primary); box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.2); }
+
+        .header-info { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; padding-bottom: 1.5rem; border-bottom: 1px solid var(--border); flex-wrap: wrap; gap: 0.5rem; }
+        .stat-badge { background: var(--bg); padding: 0.75rem 1.25rem; border-radius: 8px; font-weight: 600; border: 1px solid var(--border); font-size: 1.1rem; }
+        .timer-box { color: var(--danger); font-variant-numeric: tabular-nums; }
+        .streak-box { color: var(--warning); }
+        .score-box { color: var(--success); }
+
+        .pace-container { width: 100%; height: 8px; background: var(--bg); border-radius: 4px; margin-bottom: 2rem; overflow: hidden; position: relative; border: 1px solid var(--border); }
+        .pace-bar { height: 100%; width: 100%; background: var(--success); transition: width 1s linear, background-color 0.5s; }
+        .pace-bar.warning { background: var(--warning); }
+        .pace-bar.danger { background: var(--danger); }
+
+        .question-box { font-size: 1.4rem; margin-bottom: 2rem; line-height: 1.6; min-height: 80px; font-weight: 500; }
+        .options-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 2rem; }
+        
+        .option-btn { 
+            background: var(--surface-hover); 
+            border: 2px solid var(--border); 
+            color: var(--text); 
+            text-align: left; 
+            padding: 1.25rem; 
+            font-size: 1.15rem; 
+            border-radius: 10px;
+            box-shadow: none;
+            font-weight: 500;
+        }
+        
+        .option-btn:hover:not(:disabled) { 
+            background: var(--bg); 
+            border-color: var(--primary); 
+            transform: translateY(-2px);
+        }
+        
+        .option-btn.correct { 
+            background: rgba(16, 185, 129, 0.1); 
+            border-color: var(--success); 
+            color: var(--success);
+        }
+        
+        .option-btn.wrong { 
+            background: rgba(244, 63, 94, 0.1); 
+            border-color: var(--danger); 
+            color: var(--danger);
+        }
+
+        .concept-hint { color: var(--primary); font-size: 0.9rem; margin-bottom: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; }
+
+        #ui-explanation-box { display: none; background: rgba(245, 158, 11, 0.05); border-left: 4px solid var(--primary); padding: 1.25rem; border-radius: 0 8px 8px 0; margin-bottom: 1.5rem; font-size: 1.05rem; line-height: 1.6; border-top: 1px solid var(--border); border-right: 1px solid var(--border); border-bottom: 1px solid var(--border);}
+        
+        .summary-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 2.5rem; }
+        .stat-card { background: var(--surface-hover); padding: 1.5rem 1rem; border-radius: 10px; text-align: center; border: 1px solid var(--border); }
+        .stat-card .value { font-size: 2rem; font-weight: 700; color: var(--text); margin-bottom: 0.25rem; }
+        .stat-card .label { color: var(--text-muted); font-size: 0.8rem; text-transform: uppercase; font-weight: 600; letter-spacing: 0.5px;}
+
+        .review-list { max-height: 500px; overflow-y: auto; display: flex; flex-direction: column; gap: 1rem; padding-right: 0.5rem; margin-bottom: 2rem; }
+        .review-list::-webkit-scrollbar { width: 8px; }
+        .review-list::-webkit-scrollbar-track { background: var(--bg); border-radius: 4px; }
+        .review-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+        .review-list::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+        
+        .review-item { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 1.25rem; border-left: 4px solid transparent; }
+        .review-item.correct { border-left-color: var(--success); }
+        .review-item.incorrect { border-left-color: var(--danger); }
+        .review-item.skipped { border-left-color: var(--text-muted); }
+        
+        .review-q { font-weight: 600; margin-bottom: 0.75rem; font-size: 1.15rem; }
+        .review-a { font-size: 1rem; color: var(--text-muted); margin-bottom: 0.75rem; }
+        .review-meta { display: flex; justify-content: space-between; align-items: center; font-size: 0.85rem; background: var(--surface); padding: 0.75rem; border-radius: 6px; margin-top: 1rem; border: 1px solid var(--border);}
+        .speed-badge { padding: 0.25rem 0.6rem; border-radius: 4px; font-weight: 600;}
+        .speed-fast { background: rgba(16, 185, 129, 0.15); color: var(--success); }
+        .speed-ok { background: rgba(245, 158, 11, 0.15); color: var(--warning); }
+        .speed-slow { background: rgba(244, 63, 94, 0.15); color: var(--danger); }
+        .explanation { margin-top: 0.5rem; font-size: 0.95rem; color: var(--text); border-top: 1px dashed var(--border); padding-top: 1rem; line-height: 1.5;}
+
+        @media (max-width: 600px) {
+            .options-grid, .summary-stats { grid-template-columns: 1fr 1fr; }
+            .container { padding: 1.5rem; }
+            h1 { font-size: 1.8rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <!-- START SCREEN -->
+        <div id="start-screen" class="active">
+            <h1>Ratio & Proportion <span style="color: var(--primary)">v5</span></h1>
+            <p class="subtitle">Procedurally generated infinite mathematics based on Kaushik Sir.</p>
+            
+            <div class="settings">
+                <div class="setting-group">
+                    <label>Learning Mode</label>
+                    <select id="quiz-mode">
+                        <option value="train" selected>Training (Instant Explanations & Adaptive)</option>
+                        <option value="exam">Exam Sprint (Strict 30s/Q Auto-Skip)</option>
+                    </select>
+                </div>
+                <div class="setting-group">
+                    <label>Duration</label>
+                    <select id="quiz-duration">
+                        <option value="180">3 Minutes (Sprint)</option>
+                        <option value="300" selected>5 Minutes (Standard Practice)</option>
+                        <option value="600">10 Minutes (Endurance)</option>
+                        <option value="999999">No Timer (Learn & Explore)</option>
+                    </select>
+                </div>
+                <div class="setting-group">
+                    <label>Topic Selection</label>
+                    <select id="quiz-concept">
+                        <option value="all" selected>🌟 ALL 12 TOPICS MIXED (Adaptive)</option>
+                        <option value="fourth_prop">1. Fourth & Third Proportional</option>
+                        <option value="mean_prop">2. Mean Proportional (√ab)</option>
+                        <option value="uniform_ratio">3. Combining Ratios (a:b, b:c -> a:b:c)</option>
+                        <option value="compound_ratio">4. Compounded Ratio (First to Last)</option>
+                        <option value="equation_to_ratio">5. Equation to Ratio (Reciprocal Method)</option>
+                        <option value="golden_rule_1">6. Golden Rule 1 (Equal Add/Sub)</option>
+                        <option value="golden_rule_2">7. Golden Rule 2 (One fixed, one changed)</option>
+                        <option value="ages">8. Age Problems (Equalizing Gap)</option>
+                        <option value="mixture_basic">9. Mixture: Adding one component</option>
+                        <option value="mixture_replace">10. Mixture Replacement Formula</option>
+                        <option value="coins">11. Coins & Values</option>
+                        <option value="income_exp">12. Income, Exp, Savings & Balance</option>
+                    </select>
+                </div>
+            </div>
+
+            <button class="start-btn" id="start-button" onclick="startQuiz()">Initialize Engine</button>
+        </div>
+
+        <!-- QUIZ SCREEN -->
+        <div id="quiz-screen">
+            <div class="header-info">
+                <div class="stat-badge score-box">Score: <span id="ui-score">0</span></div>
+                <div class="stat-badge streak-box">🔥 Streak: <span id="ui-streak">0</span></div>
+                <div class="stat-badge timer-box" id="ui-timer-container"><span id="ui-timer">05:00</span></div>
+            </div>
+            
+            <div class="pace-container">
+                <div class="pace-bar" id="ui-pace-bar"></div>
+            </div>
+
+            <div class="concept-hint" id="ui-concept-hint">Concept: Ratio</div>
+            <div class="question-box" id="ui-question">Loading question...</div>
+            
+            <div class="options-grid" id="ui-options"></div>
+
+            <div id="ui-explanation-box">
+                <strong style="color: var(--primary);">Concept Breakdown:</strong><br>
+                <span id="ui-exp-text"></span>
+            </div>
+            
+            <div style="display: flex; justify-content: space-between; margin-top: 1rem; gap: 1rem;">
+                <button id="skip-btn" onclick="skipQuestion()" style="background: var(--surface-hover); color: var(--text); border: 1px solid var(--border); box-shadow: none;">Skip Question</button>
+                <button id="next-btn" onclick="nextQuestion()" disabled>Next Question ➔</button>
+            </div>
+        </div>
+
+        <!-- RESULT SCREEN -->
+        <div id="result-screen">
+            <h1>Session Complete</h1>
+            
+            <div class="summary-stats">
+                <div class="stat-card"><div class="value" id="res-score">0</div><div class="label">Correct</div></div>
+                <div class="stat-card"><div class="value" id="res-accuracy">0%</div><div class="label">Accuracy</div></div>
+                <div class="stat-card"><div class="value" id="res-speed">0s</div><div class="label">Avg Time</div></div>
+                <div class="stat-card"><div class="value" id="res-streak" style="color: var(--warning);">0</div><div class="label">Best Streak</div></div>
+            </div>
+
+            <h3 style="margin-bottom: 1.5rem; border-bottom: 1px solid var(--border); padding-bottom: 0.75rem; color: var(--text-muted);">Weakest Concept: <span id="res-weakest" style="color: var(--danger);">None</span></h3>
+            
+            <div class="review-list" id="review-container"></div>
+
+            <button class="start-btn" onclick="resetApp()">Return to Dashboard</button>
+        </div>
+    </div>
+
+    <script>
+        // --- CORE MATH HELPERS ---
+        function rnd(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
+        
+        function gcd(a, b) { if (b === 0) return a; return gcd(b, a % b); }
+        function lcm(a, b) { return (a * b) / gcd(a, b); }
+
+        function shuffle(array) {
+            var cur = array.length, rndI;
+            while (cur > 0) {
+                rndI = Math.floor(Math.random() * cur); cur--;
+                var temp = array[cur]; array[cur] = array[rndI]; array[rndI] = temp;
+            }
+            return array;
+        }
+
+        function getUniqueOptions(opts) {
+            var unique = [];
+            for (var i = 0; i < opts.length; i++) {
+                if (unique.indexOf(opts[i]) === -1) unique.push(opts[i]);
+            }
+            return unique;
+        }
+
+        // --- 12 DYNAMIC GENERATORS based on Kaushik Sir's video ---
+        var generators = {
+            
+            // 1. Fourth & Third Proportional
+            // a:b :: c:d => a*d = b*c
+            'fourth_prop': function() {
+                var isFourth = rnd(0,1) === 1;
+                var ans, q, expText, opts;
+                
+                if(isFourth) {
+                    var a = rnd(2, 8);
+                    var b = a * rnd(2, 5);
+                    var c = rnd(3, 10);
+                    ans = (b * c) / a;
+                    q = "Find the fourth proportional to " + a + ", " + b + ", and " + c + ".";
+                    expText = "Let it be d. a:b = c:d -> a×d = b×c -> " + a + "×d = " + b + "×" + c + ". d = " + ans + ".";
+                } else {
+                    var a = rnd(2, 6);
+                    var b = a * rnd(2, 5);
+                    ans = (b * b) / a;
+                    q = "Find the third proportional to " + a + " and " + b + ".";
+                    expText = "Let it be c. a:b = b:c -> a×c = b². " + a + "×c = " + b + "². c = " + ans + ".";
+                }
+
+                opts = [ans, ans+rnd(1,5), Math.abs(ans-rnd(1,5)), ans*2];
+                opts = getUniqueOptions(opts);
+                while(opts.length < 4) { opts.push(opts[0] + rnd(1,10)); opts = getUniqueOptions(opts); }
+                
+                return {
+                    id: 'fourth_prop', type: 'Fourth & Third Proportional',
+                    q: q, ans: ans, options: shuffle(opts), exp: expText
+                };
+            },
+
+            // 2. Mean Proportional
+            // x = sqrt(a*b)
+            'mean_prop': function() {
+                // Ensure a*b is a perfect square.
+                var roots = [4, 5, 6, 7, 8, 9, 10, 11, 12, 15, 20];
+                var targetRoot = roots[rnd(0, roots.length-1)];
+                var targetSquare = targetRoot * targetRoot;
+                
+                // Find factors
+                var factors = [];
+                for(var i=1; i<=Math.floor(Math.sqrt(targetSquare)); i++) {
+                    if(targetSquare % i === 0 && i !== targetSquare/i) {
+                        factors.push([i, targetSquare/i]);
+                    }
+                }
+                var pair = factors.length > 0 ? factors[rnd(0, factors.length-1)] : [1, targetSquare];
+                var a = pair[0], b = pair[1];
+                var ans = targetRoot;
+
+                var opts = [ans, ans+1, Math.abs(ans-2), ans*2];
+                opts = getUniqueOptions(opts);
+                while(opts.length < 4) { opts.push(opts[0] + rnd(1,10)); opts = getUniqueOptions(opts); }
+
+                return {
+                    id: 'mean_prop', type: 'Mean Proportional',
+                    q: "Find the mean proportional between " + a + " and " + b + ".",
+                    ans: ans, options: shuffle(opts),
+                    exp: "Mean proportional x = √(a × b). x = √(" + a + " × " + b + ") = √" + targetSquare + " = " + ans + "."
+                };
+            },
+
+            // 3. Combining Ratios (a:b, b:c) -> a:b:c
+            'uniform_ratio': function() {
+                var a = rnd(2,5), b1 = rnd(3,7);
+                var b2 = rnd(2,6), c = rnd(3,8);
+                // Simplify initial ratios
+                var gcd1 = gcd(a,b1), gcd2 = gcd(b2,c);
+                a/=gcd1; b1/=gcd1; b2/=gcd2; c/=gcd2;
+                if(a===b1) a+=1; if(b2===c) c+=1;
+
+                var l = lcm(b1, b2);
+                var mult1 = l/b1, mult2 = l/b2;
+                var finalA = a*mult1, finalB = l, finalC = c*mult2;
+                
+                var gFinal = gcd(gcd(finalA, finalB), finalC);
+                finalA/=gFinal; finalB/=gFinal; finalC/=gFinal;
+
+                var ans = finalA + ":" + finalB + ":" + finalC;
+                var trap1 = a + ":" + (b1*b2) + ":" + c;
+                var trap2 = finalA + ":" + (finalB+1) + ":" + finalC;
+                var trap3 = finalC + ":" + finalB + ":" + finalA;
+
+                var opts = [ans, trap1, trap2, trap3];
+                opts = getUniqueOptions(opts);
+                while(opts.length < 4) { opts.push((finalA+rnd(1,2)) + ":" + finalB + ":" + finalC); opts = getUniqueOptions(opts); }
+
+                return {
+                    id: 'uniform_ratio', type: 'Uniform Ratio',
+                    q: "If A:B = " + a + ":" + b1 + " and B:C = " + b2 + ":" + c + ", find A:B:C.",
+                    ans: ans, options: shuffle(opts),
+                    exp: "Make B common. LCM of " + b1 + " and " + b2 + " is " + l + ". Multiply first ratio by " + mult1 + " -> " + (a*mult1) + ":" + (b1*mult1) + ". Multiply second ratio by " + mult2 + " -> " + (b2*mult2) + ":" + (c*mult2) + ". Result: " + finalA + ":" + finalB + ":" + finalC + "."
+                };
+            },
+
+            // 4. Compounded Ratio (First to Last)
+            // A:B, B:C, C:D -> A:D = (A/B)*(B/C)*(C/D)
+            'compound_ratio': function() {
+                var a = rnd(2,4), b = rnd(3,5);
+                var c = b, d = rnd(4,7);
+                var e = d, f = rnd(5,9);
+                
+                if(gcd(a,b)>1) b++;
+                if(gcd(c,d)>1) d++;
+                if(gcd(e,f)>1) f++;
+
+                var num = a*c*e;
+                var den = b*d*f;
+                var g = gcd(num, den);
+                var ans = (num/g) + ":" + (den/g);
+
+                var opts = [ans, (den/g) + ":" + (num/g), ((num/g)+1) + ":" + (den/g), (num/g) + ":" + ((den/g)+1)];
+                opts = getUniqueOptions(opts);
+                while(opts.length < 4) { opts.push((num/g+rnd(1,3)) + ":" + (den/g+rnd(1,3))); opts = getUniqueOptions(opts); }
+
+                return {
+                    id: 'compound_ratio', type: 'Compounded Ratio',
+                    q: "If A:B = " + a + ":" + b + ", B:C = " + c + ":" + d + ", and C:D = " + e + ":" + f + ", find A:D.",
+                    ans: ans, options: shuffle(opts),
+                    exp: "A:D is the compounded ratio. Multiply them: (A/B) × (B/C) × (C/D) = (" + a + "/" + b + ") × (" + c + "/" + d + ") × (" + e + "/" + f + ") = " + (num/g) + "/" + (den/g) + "."
+                };
+            },
+
+            // 5. Equation to Ratio
+            // 2A = 3B = 4C -> A:B:C = 1/2 : 1/3 : 1/4 -> 6:4:3
+            'equation_to_ratio': function() {
+                var c1 = rnd(2,4), c2 = rnd(3,5), c3 = rnd(4,7);
+                if(c1===c2) c2++; if(c2===c3) c3++; if(c1===c3) c3++;
+                
+                var l = lcm(lcm(c1, c2), c3);
+                var r1 = l/c1, r2 = l/c2, r3 = l/c3;
+                var ans = r1 + ":" + r2 + ":" + r3;
+
+                var opts = [ans, c1 + ":" + c2 + ":" + c3, r3 + ":" + r2 + ":" + r1, (r1+1) + ":" + r2 + ":" + r3];
+                opts = getUniqueOptions(opts);
+                while(opts.length < 4) { opts.push((r1+rnd(1,2)) + ":" + r2 + ":" + r3); opts = getUniqueOptions(opts); }
+
+                return {
+                    id: 'equation_to_ratio', type: 'Equation to Ratio',
+                    q: "If " + c1 + "A = " + c2 + "B = " + c3 + "C, find the ratio A:B:C.",
+                    ans: ans, options: shuffle(opts),
+                    exp: "Reciprocal method: Ratio is (1/" + c1 + ") : (1/" + c2 + ") : (1/" + c3 + "). Multiply by LCM(" + c1 + "," + c2 + "," + c3 + ") which is " + l + ". Gives " + ans + "."
+                };
+            },
+
+            // 6. Golden Rule 1 (Equal Add/Sub)
+            // Ratio a:b becomes c:d after adding x to both. Diff in ratio parts is same.
+            'golden_rule_1': function() {
+                var a = rnd(2,5), b = a + rnd(1,4);
+                var addedParts = rnd(2,5);
+                var c = a + addedParts, d = b + addedParts;
+                var multiplier = rnd(3,10) * 4;
+                var addedVal = addedParts * multiplier;
+                
+                // Question: Find initial diff
+                var diffInitial = (b - a) * multiplier;
+                var ans = diffInitial;
+
+                var opts = [ans, ans+multiplier, Math.abs(ans-multiplier), ans*2];
+                opts = getUniqueOptions(opts);
+                while(opts.length < 4) { opts.push(opts[0] + rnd(1,5)*multiplier); opts = getUniqueOptions(opts); }
+
+                return {
+                    id: 'golden_rule_1', type: 'Golden Rule 1 (Equal Add)',
+                    q: "Two numbers are in ratio " + a + ":" + b + ". If " + addedVal + " is added to both, the ratio becomes " + c + ":" + d + ". Find the difference between the initial numbers.",
+                    ans: ans, options: shuffle(opts),
+                    exp: "Golden Rule 1: Gap in ratios must be equal. Here, a -> c is +" + addedParts + " parts, b -> d is +" + addedParts + " parts. So " + addedParts + " parts = " + addedVal + ". 1 part = " + multiplier + ". Initial difference is (" + b + "-" + a + ") parts = " + (b-a) + " parts. " + (b-a) + " × " + multiplier + " = " + ans + "."
+                };
+            },
+
+            // 7. Golden Rule 2 (One fixed, one changed)
+            // Milk/Water. Water added. Milk must be constant.
+            'golden_rule_2': function() {
+                var m = rnd(3,7), w1 = rnd(2,5);
+                var wAddedParts = rnd(2,4);
+                var w2 = w1 + wAddedParts;
+                
+                // M is constant.
+                var multiplier = rnd(2,8) * 5;
+                var waterAddedLiters = wAddedParts * multiplier;
+                var initialMilk = m * multiplier;
+                var ans = initialMilk;
+
+                var opts = [ans, ans+multiplier, Math.abs(ans-multiplier), ans*2];
+                opts = getUniqueOptions(opts);
+                while(opts.length < 4) { opts.push(opts[0] + rnd(1,3)*multiplier); opts = getUniqueOptions(opts); }
+
+                return {
+                    id: 'golden_rule_2', type: 'Golden Rule 2 (One Fixed)',
+                    q: "Ratio of milk to water is " + m + ":" + w1 + ". If " + waterAddedLiters + "L of water is added, the ratio becomes " + m + ":" + w2 + ". Find the initial amount of milk.",
+                    ans: ans, options: shuffle(opts),
+                    exp: "Golden Rule 2: Milk is fixed. Milk parts are equal (" + m + "). Water parts increased from " + w1 + " to " + w2 + ", diff = " + wAddedParts + " parts. " + wAddedParts + " parts = " + waterAddedLiters + "L -> 1 part = " + multiplier + "L. Milk = " + m + " parts = " + ans + "L."
+                };
+            },
+
+            // 8. Age Problems (Equalizing Gap)
+            'ages': function() {
+                var gap = rnd(1,4); 
+                var p1_a = rnd(1,3), p1_b = p1_a + gap; // past ratio (e.g. 1:2)
+                var addYears = rnd(1,3)*gap; // time jump
+                var p2_a = p1_a + (addYears/gap), p2_b = p1_b + (addYears/gap); // Ensure same part difference
+                
+                var multiplier = rnd(2,6); // 1 part = multiplier years
+                var pastYears = rnd(2,5); // "pastYears ago"
+                var addYearsActual = addYears * multiplier; // Difference between the two ratios in years
+                
+                // Let's say ratio 1 is pastYears ago. Ratio 2 is futureYears hence.
+                var futureYears = addYearsActual - pastYears;
+                
+                // Present Age of A
+                var presentA = (p1_a * multiplier) + pastYears;
+                var ans = presentA;
+
+                var opts = [ans, ans+multiplier, Math.abs(ans-multiplier), ans*2];
+                opts = getUniqueOptions(opts);
+                while(opts.length < 4) { opts.push(opts[0] + rnd(1,5)); opts = getUniqueOptions(opts); }
+
+                return {
+                    id: 'ages', type: 'Ages (Equalizing Gaps)',
+                    q: pastYears + " years ago, ratio of A's age to B's age was " + p1_a + ":" + p1_b + ". " + futureYears + " years hence, the ratio will be " + p2_a + ":" + p2_b + ". Find A's present age.",
+                    ans: ans, options: shuffle(opts),
+                    exp: "Time gap between the two ratios is " + pastYears + " + " + futureYears + " = " + addYearsActual + " years. In ratio, parts increase by " + (p2_a - p1_a) + ". So " + (p2_a - p1_a) + " parts = " + addYearsActual + " years. 1 part = " + multiplier + " years. A's age " + pastYears + " yrs ago = " + p1_a + " parts = " + (p1_a*multiplier) + ". Present A = " + (p1_a*multiplier) + " + " + pastYears + " = " + ans + "."
+                };
+            },
+
+            // 9. Mixture: Basic
+            'mixture_basic': function() {
+                var m = rnd(3,5), w = rnd(1,2);
+                var mTotal = rnd(4,10) * 10;
+                var mVal = mTotal * m / (m+w);
+                var wVal = mTotal * w / (m+w);
+                if(!Number.isInteger(mVal)) return generators['mixture_basic'](); // re-roll if fractions
+                
+                var addW = rnd(1,3) * (mTotal / (m+w));
+                var newW = wVal + addW;
+                var gcdNew = gcd(mVal, newW);
+                var finalRatio = (mVal/gcdNew) + ":" + (newW/gcdNew);
+                
+                var ans = finalRatio;
+                var opts = [ans, (newW/gcdNew) + ":" + (mVal/gcdNew), (mVal/gcdNew) + ":" + ((newW/gcdNew)+1), ((mVal/gcdNew)+1) + ":" + (newW/gcdNew)];
+                opts = getUniqueOptions(opts);
+                while(opts.length < 4) { opts.push(rnd(1,5) + ":" + rnd(1,5)); opts = getUniqueOptions(opts); }
+
+                return {
+                    id: 'mixture_basic', type: 'Mixture (Adding Component)',
+                    q: "A " + mTotal + "L mixture contains Milk and Water in ratio " + m + ":" + w + ". If " + addW + "L of water is added, find the new ratio of Milk to Water.",
+                    ans: ans, options: shuffle(opts),
+                    exp: "Total = " + (m+w) + " parts = " + mTotal + "L -> 1 part = " + (mTotal/(m+w)) + "L. Initial Milk = " + mVal + "L, Water = " + wVal + "L. Add " + addW + "L water -> New Water = " + newW + "L. New Ratio = " + mVal + ":" + newW + " = " + ans + "."
+                };
+            },
+
+            // 10. Mixture Replacement
+            // Final = Initial(1 - R/I)^n
+            'mixture_replace': function() {
+                var initial = rnd(4, 10)*10;
+                var replace = rnd(1, 2)*10;
+                // Just 2 operations
+                var n = 2;
+                var finalAmount = initial * Math.pow(1 - (replace/initial), n);
+                var ans = Number.isInteger(finalAmount) ? finalAmount : finalAmount.toFixed(2);
+                
+                var opts = [ans, (parseFloat(ans)+replace).toFixed(2), (Math.abs(parseFloat(ans)-replace)).toFixed(2), (initial - replace*2).toFixed(2)];
+                opts = getUniqueOptions(opts);
+                while(opts.length < 4) { opts.push((parseFloat(opts[0]) + rnd(1,5)).toFixed(2)); opts = getUniqueOptions(opts); }
+
+                return {
+                    id: 'mixture_replace', type: 'Mixture Replacement',
+                    q: "A vessel contains " + initial + "L of pure milk. " + replace + "L of milk is taken out and replaced with water. This process is repeated once more. Find final amount of milk.",
+                    ans: ans, options: shuffle(opts),
+                    exp: "Formula: Final = Initial × (1 - Removed/Initial)^n. Final = " + initial + " × (1 - " + replace + "/" + initial + ")² = " + initial + " × (" + (initial-replace) + "/" + initial + ")² = " + ans + "."
+                };
+            },
+
+            // 11. Coins & Values
+            // Number of coins ratio. Given total value. Find count of specific coin.
+            'coins': function() {
+                var r1 = rnd(3,6), r50 = rnd(4,8), r25 = rnd(2,6); // Ratio of number of coins
+                // Values in rupees for 'x' multiplier
+                // r1 * 1, r50 / 2, r25 / 4
+                // To avoid fractions, multiply ratios by 4.
+                r1 *= 4; r50 *= 4; r25 *= 4; 
+                
+                var val1 = r1 * 1;
+                var val50 = r50 / 2;
+                var val25 = r25 / 4;
+                var totalValueParts = val1 + val50 + val25;
+                
+                var multiplier = rnd(2,5) * 10;
+                var totalRupees = totalValueParts * multiplier;
+                
+                var ans = r50 * multiplier; // Number of 50p coins
+
+                var opts = [ans, ans/2, ans*2, r1*multiplier];
+                opts = getUniqueOptions(opts);
+                while(opts.length < 4) { opts.push(opts[0] + rnd(1,5)*10); opts = getUniqueOptions(opts); }
+
+                return {
+                    id: 'coins', type: 'Coins & Values',
+                    q: "A bag contains ₹1, 50p, and 25p coins in the ratio " + (r1/4) + ":" + (r50/4) + ":" + (r25/4) + ". If the total value is ₹" + totalRupees + ", find the number of 50p coins.",
+                    ans: ans, options: shuffle(opts),
+                    exp: "Convert number ratio to value ratio. Multiply initial ratio by 4: " + r1 + ":" + r50 + ":" + r25 + ". " + r1 + " coins of ₹1 = ₹" + val1 + ". " + r50 + " coins of 50p = ₹" + val50 + ". " + r25 + " coins of 25p = ₹" + val25 + ". Total Value Parts = " + totalValueParts + "x = ₹" + totalRupees + ". So x = " + multiplier + ". Number of 50p coins = " + r50 + "x = " + ans + "."
+                };
+            },
+
+            // 12. Income, Exp, Savings & Balance
+            // Income ratio, Exp ratio, equal savings.
+            'income_exp': function() {
+                var incA = rnd(4,7), incB = incA - rnd(1,2);
+                var expA = incA - 1, expB = incB - 1; // 1 part saving each
+                
+                var saveVal = rnd(2,6) * 1000;
+                // Income of A
+                var ans = incA * saveVal;
+
+                var opts = [ans, incB*saveVal, ans+saveVal, ans*2];
+                opts = getUniqueOptions(opts);
+                while(opts.length < 4) { opts.push(opts[0] + rnd(1,3)*1000); opts = getUniqueOptions(opts); }
+
+                return {
+                    id: 'income_exp', type: 'Income & Expenditures',
+                    q: "Incomes of A and B are in ratio " + incA + ":" + incB + ". Their expenditures are in ratio " + expA + ":" + expB + ". If both save ₹" + saveVal + ", find A's income.",
+                    ans: ans, options: shuffle(opts),
+                    exp: "Savings = Income - Exp. For A: " + incA + " parts - " + expA + " parts = 1 part. For B: " + incB + " parts - " + expB + " parts = 1 part. Both save 1 part = ₹" + saveVal + ". A's Income = " + incA + " parts = ₹" + ans + "."
+                };
+            }
+        };
+
+        // --- APP STATE ---
+        var state = {
+            mode: 'train', timeRemaining: 300, timerId: null,
+            questionsAttempted: 0, correctAnswers: 0, streak: 0, maxStreak: 0,
+            history: [], currentQ: null, qStartTime: 0, paceTime: 30, focus: 'all',
+            weights: {}, errorCounts: {}, isTransitioning: false
+        };
+
+        function startQuiz() {
+            try {
+                state.mode = document.getElementById('quiz-mode').value;
+                var dur = parseInt(document.getElementById('quiz-duration').value);
+                state.timeRemaining = dur;
+                state.paceTime = 30; // Strict 30s
+                state.isTransitioning = false;
+                
+                document.getElementById('ui-timer-container').style.display = (dur === 999999) ? 'none' : 'block';
+                
+                state.focus = document.getElementById('quiz-concept').value;
+                state.questionsAttempted = 0; state.correctAnswers = 0; state.streak = 0; state.maxStreak = 0;
+                state.history = [];
+                
+                state.weights = {}; state.errorCounts = {};
+                var genKeys = Object.keys(generators);
+                for(var i=0; i<genKeys.length; i++) {
+                    var k = genKeys[i];
+                    if (state.focus === 'all' || state.focus === k) {
+                        state.weights[k] = 1; 
+                        state.errorCounts[k] = 0;
+                    }
+                }
+                
+                document.getElementById('start-screen').classList.remove('active');
+                document.getElementById('quiz-screen').classList.add('active');
+                
+                if(dur !== 999999) {
+                    state.timerId = setInterval(tick, 1000);
+                }
+                generateNextQuestion();
+            } catch (e) {
+                alert("Error starting test: " + e.message);
+                console.error(e);
+            }
+        }
+
+        function tick() {
+            state.timeRemaining--;
+            updateUITimer();
+            
+            var elapsed = (performance.now() - state.qStartTime) / 1000;
+            var pacePct = Math.max(0, 100 - (elapsed / state.paceTime) * 100);
+            var bar = document.getElementById('ui-pace-bar');
+            bar.style.width = pacePct + '%';
+            
+            if (pacePct < 30) { bar.className = 'pace-bar danger'; }
+            else if (pacePct < 60) { bar.className = 'pace-bar warning'; }
+            else { bar.className = 'pace-bar'; }
+
+            // STRICT 30s TIMEOUT
+            if (state.mode === 'exam' && pacePct <= 0 && !state.isTransitioning) {
+                timeOutQuestion();
+            }
+
+            if (state.timeRemaining <= 0) endQuiz();
+        }
+
+        function updateUITimer() {
+            var m = Math.floor(state.timeRemaining / 60);
+            var s = state.timeRemaining % 60;
+            var minStr = m < 10 ? '0' + m : m;
+            var secStr = s < 10 ? '0' + s : s;
+            document.getElementById('ui-timer').innerText = minStr + ":" + secStr;
+            document.getElementById('ui-streak').innerText = state.streak;
+            document.getElementById('ui-score').innerText = state.correctAnswers;
+        }
+
+        function getWeightedRandomConcept() {
+            var genKeys = Object.keys(state.weights);
+            var totalWeight = 0;
+            for(var i=0; i<genKeys.length; i++) totalWeight += state.weights[genKeys[i]];
+            
+            var random = Math.random() * totalWeight;
+            for(var j=0; j<genKeys.length; j++) {
+                var concept = genKeys[j];
+                random -= state.weights[concept];
+                if (random <= 0) return concept;
+            }
+            return genKeys[0];
+        }
+
+        function generateNextQuestion() {
+            state.isTransitioning = false;
+            document.getElementById('ui-explanation-box').style.display = 'none';
+            document.getElementById('skip-btn').disabled = false;
+            document.getElementById('next-btn').disabled = true;
+            document.getElementById('ui-pace-bar').style.width = '100%';
+            
+            if(document.getElementById('quiz-duration').value == 999999) {
+                requestAnimationFrame(updatePaceBarLoop);
+            }
+
+            var concept = getWeightedRandomConcept();
+            state.currentQ = generators[concept]();
+            state.qStartTime = performance.now();
+
+            document.getElementById('ui-concept-hint').innerText = "Concept: " + state.currentQ.type;
+            document.getElementById('ui-question').innerText = state.currentQ.q;
+            
+            var optsContainer = document.getElementById('ui-options');
+            optsContainer.innerHTML = '';
+            
+            for(var i=0; i<state.currentQ.options.length; i++) {
+                (function(opt) {
+                    var btn = document.createElement('button');
+                    btn.className = 'option-btn';
+                    btn.innerText = opt;
+                    btn.onclick = function() { selectOption(opt, btn); };
+                    optsContainer.appendChild(btn);
+                })(state.currentQ.options[i]);
+            }
+        }
+        
+        function updatePaceBarLoop() {
+            if(document.getElementById('quiz-screen').classList.contains('active') && document.getElementById('quiz-duration').value == 999999) {
+                var elapsed = (performance.now() - state.qStartTime) / 1000;
+                var pacePct = Math.max(0, 100 - (elapsed / state.paceTime) * 100);
+                var bar = document.getElementById('ui-pace-bar');
+                bar.style.width = pacePct + '%';
+                if (pacePct < 30) bar.className = 'pace-bar danger'; 
+                else if (pacePct < 60) bar.className = 'pace-bar warning'; 
+                else bar.className = 'pace-bar';
+                requestAnimationFrame(updatePaceBarLoop);
+            }
+        }
+
+        function selectOption(selectedOpt, btnElement) {
+            state.isTransitioning = true;
+            var timeTaken = Math.round(performance.now() - state.qStartTime);
+            var isCorrect = (selectedOpt == state.currentQ.ans);
+            
+            var buttons = document.querySelectorAll('.option-btn');
+            for(var i=0; i<buttons.length; i++) {
+                var b = buttons[i];
+                b.disabled = true;
+                if (b.innerText == state.currentQ.ans) b.classList.add('correct');
+                else if (b === btnElement && !isCorrect) b.classList.add('wrong');
+            }
+
+            state.questionsAttempted++;
+            document.getElementById('skip-btn').disabled = true;
+            document.getElementById('next-btn').disabled = false;
+
+            if (isCorrect) {
+                state.correctAnswers++;
+                state.streak++;
+                state.maxStreak = Math.max(state.maxStreak, state.streak);
+                state.weights[state.currentQ.id] = Math.max(0.5, state.weights[state.currentQ.id] - 0.2);
+            } else {
+                state.streak = 0;
+                state.weights[state.currentQ.id] += 1.5;
+                state.errorCounts[state.currentQ.id]++;
+                
+                if (state.mode === 'train') {
+                    document.getElementById('ui-explanation-box').style.display = 'block';
+                    document.getElementById('ui-exp-text').innerText = state.currentQ.exp;
+                }
+            }
+            
+            updateUITimer();
+            
+            var histItem = {
+                id: state.currentQ.id, type: state.currentQ.type, q: state.currentQ.q,
+                ans: state.currentQ.ans, exp: state.currentQ.exp,
+                userAns: selectedOpt, timeTakenMs: timeTaken, isCorrect: isCorrect, skipped: false
+            };
+            state.history.push(histItem);
+            
+            if (state.mode === 'exam') { setTimeout(generateNextQuestion, 800); }
+        }
+
+        function skipQuestion() {
+            state.isTransitioning = true;
+            var timeTaken = Math.round(performance.now() - state.qStartTime);
+            state.questionsAttempted++; 
+            state.streak = 0;
+            state.weights[state.currentQ.id] += 1.0; 
+            state.errorCounts[state.currentQ.id]++;
+            
+            var histItem = {
+                id: state.currentQ.id, type: state.currentQ.type, q: state.currentQ.q,
+                ans: state.currentQ.ans, exp: state.currentQ.exp,
+                userAns: "Skipped ⏭", timeTakenMs: timeTaken, isCorrect: false, skipped: true
+            };
+            state.history.push(histItem);
+            
+            updateUITimer();
+            generateNextQuestion();
+        }
+
+        function timeOutQuestion() {
+            state.isTransitioning = true;
+            var timeTaken = Math.round(performance.now() - state.qStartTime);
+            state.questionsAttempted++; 
+            state.streak = 0;
+            state.weights[state.currentQ.id] += 1.0; 
+            state.errorCounts[state.currentQ.id]++;
+            
+            var histItem = {
+                id: state.currentQ.id, type: state.currentQ.type, q: state.currentQ.q,
+                ans: state.currentQ.ans, exp: state.currentQ.exp,
+                userAns: "Time Out ⏱️", timeTakenMs: timeTaken, isCorrect: false, skipped: true
+            };
+            state.history.push(histItem);
+            
+            updateUITimer();
+            generateNextQuestion();
+        }
+
+        function nextQuestion() { generateNextQuestion(); }
+
+        function endQuiz() {
+            clearInterval(state.timerId);
+            document.getElementById('quiz-screen').classList.remove('active');
+            document.getElementById('result-screen').classList.add('active');
+            renderResults();
+        }
+
+        function renderResults() {
+            document.getElementById('res-score').innerText = state.correctAnswers + "/" + state.questionsAttempted;
+            var acc = state.questionsAttempted > 0 ? Math.round((state.correctAnswers / state.questionsAttempted) * 100) : 0;
+            document.getElementById('res-accuracy').innerText = acc + "%";
+            document.getElementById('res-streak').innerText = state.maxStreak;
+            
+            var totalMs = 0;
+            for(var i=0; i<state.history.length; i++) totalMs += state.history[i].timeTakenMs;
+            var avgS = state.questionsAttempted > 0 ? (totalMs / state.questionsAttempted / 1000).toFixed(1) : 0;
+            document.getElementById('res-speed').innerText = avgS + "s";
+
+            var weakest = "None", maxErr = 0;
+            var eKeys = Object.keys(state.errorCounts);
+            for (var j=0; j<eKeys.length; j++) {
+                var key = eKeys[j];
+                if (state.errorCounts[key] > maxErr) {
+                    maxErr = state.errorCounts[key];
+                    weakest = key.charAt(0).toUpperCase() + key.slice(1).replace('_', ' ');
+                }
+            }
+            document.getElementById('res-weakest').innerText = weakest + (maxErr > 0 ? " (" + maxErr + " errors)" : " - Perfect!");
+
+            var list = document.getElementById('review-container');
+            list.innerHTML = '';
+            
+            if (state.history.length === 0) {
+                list.innerHTML = '<p style="text-align:center; color:var(--text-muted);">No questions attempted.</p>';
+                return;
+            }
+
+            for(var k=0; k<state.history.length; k++) {
+                var item = state.history[k];
+                var div = document.createElement('div');
+                div.className = "review-item " + (item.skipped ? 'skipped' : (item.isCorrect ? 'correct' : 'incorrect'));
+                
+                var s = item.timeTakenMs / 1000;
+                var speedClass = 'speed-ok', speedText = 'Avg Pace';
+                if (s < 15) { speedClass = 'speed-fast'; speedText = 'Lightning Fast ⚡'; }
+                else if (s > 30) { speedClass = 'speed-slow'; speedText = 'Needs Practice 🐢'; }
+
+                var ansHtml = "Your Answer: <span style='color: " + (item.skipped ? 'var(--text-muted)' : (item.isCorrect ? 'var(--success)' : 'var(--danger)')) + "'>" + item.userAns + "</span>";
+                if (!item.isCorrect || item.skipped) {
+                    ansHtml += " | Correct Answer: <span style='color: var(--success)'>" + item.ans + "</span>";
+                }
+
+                div.innerHTML = "<div class='review-q'>Q" + (k + 1) + ": " + item.q + "</div>" +
+                                "<div class='review-a'>" + ansHtml + "</div>" +
+                                "<div class='explanation'>" + item.exp + "</div>" +
+                                "<div class='review-meta'>" +
+                                "<span>Concept: " + item.type + "</span>" +
+                                "<span><span class='speed-badge " + speedClass + "'>" + speedText + "</span> Time: " + s.toFixed(1) + "s</span>" +
+                                "</div>";
+                list.appendChild(div);
+            }
+        }
+
+        function resetApp() {
+            if(state.timerId) clearInterval(state.timerId);
+            document.getElementById('result-screen').classList.remove('active');
+            document.getElementById('quiz-screen').classList.remove('active');
+            document.getElementById('start-screen').classList.add('active');
+        }
+    </script>
+</body>
+</html>
